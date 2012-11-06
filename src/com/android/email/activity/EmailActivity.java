@@ -189,6 +189,7 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
 
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         setContentView(mUIController.getLayoutId());
 
         mUIController.onActivityViewReady();
