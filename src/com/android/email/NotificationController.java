@@ -43,8 +43,11 @@ import android.util.Log;
 
 import com.android.email.activity.ContactStatusLoader;
 import com.android.email.activity.Welcome;
+import com.android.email.activity.MessageCompose;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettings;
+import com.android.email.service.EmailBroadcastReceiver;
+import com.android.email.Preferences;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.Account;
@@ -89,6 +92,19 @@ public class NotificationController {
     private final Bitmap mGenericSenderIcon;
     private final Bitmap mGenericMultipleSenderIcon;
     private final Clock mClock;
+
+    // Notification buttons
+    private static final String EXTRA_MESSAGE_ID = "message_id";
+    private static final String NOTIFICATION_BUTTON_MARK_INTENT = "com.android.email.NOTIFICATION_BUTTON_MARK";
+    private static final String NOTIFICATION_BUTTON_DELETE_INTENT = "com.android.email.NOTIFICATION_BUTTON_DELETE";
+    private static final String NOTIFICATION_BUTTON_REPLY_INTENT = "com.android.email.intent.action.REPLY";
+    private static final String NOTIFICATION_BUTTON_REPLY_ALL_INTENT = "com.android.email.intent.action.REPLY_ALL";
+
+    private boolean mNotificationButtonMark;
+    private boolean mNotificationButtonDelete;
+    private boolean mNotificationButtonReply;
+
+    private String buttonString;
     // TODO We're maintaining all of our structures based upon the account ID. This is fine
     // for now since the assumption is that we only ever look for changes in an account's
     // INBOX. We should adjust our logic to use the mailbox ID instead.
@@ -511,6 +527,60 @@ public class NotificationController {
             } else {
                 // The notification content will be the subject of the conversation.
                 builder.setContentText(getSingleMessageLittleText(mContext, message.mSubject));
+
+                mNotificationButtonMark = Preferences.getSharedPreferences(mContext).getBoolean(
+                        Preferences.NOTIFICATION_BUTTON_MARK,
+                        Preferences.NOTIFICATION_BUTTON_MARK_DEFAULT);
+
+                mNotificationButtonDelete = Preferences.getSharedPreferences(mContext).getBoolean(
+                        Preferences.NOTIFICATION_BUTTON_DELETE,
+                        Preferences.NOTIFICATION_BUTTON_DELETE_DEFAULT);
+
+                mNotificationButtonReply = Preferences.getSharedPreferences(mContext).getBoolean(
+                        Preferences.NOTIFICATION_BUTTON_REPLY,
+                        Preferences.NOTIFICATION_BUTTON_REPLY_DEFAULT);
+
+                if (mNotificationButtonMark) {
+                    buttonString = mContext.getResources().getString(
+                            R.string.read_action);
+
+                    Intent buttonIntentMark = new Intent(mContext, EmailBroadcastReceiver.class);
+                    buttonIntentMark.setAction(NOTIFICATION_BUTTON_MARK_INTENT);
+
+                    buttonIntentMark.putExtra(EXTRA_MESSAGE_ID, newestMessageId);
+                    PendingIntent pendingActionMark = PendingIntent.getBroadcast(
+                            mContext, 1, buttonIntentMark, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                    builder.addAction(R.drawable.ic_mark_holo_dark, buttonString, pendingActionMark);
+                }
+                if (mNotificationButtonReply) {
+                    boolean mReplyAll = Preferences.getSharedPreferences(mContext).getBoolean(
+                            Preferences.REPLY_ALL, Preferences.REPLY_ALL_DEFAULT);
+                    buttonString = mContext.getResources().getString(mReplyAll ? R.string.reply_all_action : R.string.reply_action);
+
+                    Intent buttonIntentReply = new Intent(mContext, MessageCompose.class);
+                    buttonIntentReply.setAction(mReplyAll ? NOTIFICATION_BUTTON_REPLY_ALL_INTENT : NOTIFICATION_BUTTON_REPLY_INTENT);
+
+                    buttonIntentReply.putExtra(EXTRA_MESSAGE_ID, newestMessageId);
+                    PendingIntent pendingActionReply = PendingIntent.getActivity(
+                            mContext, 2, buttonIntentReply, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                    builder.addAction(mReplyAll ? R.drawable.ic_reply_all_holo_dark : R.drawable.ic_reply_holo_dark,
+                            buttonString, pendingActionReply);
+                }
+                if (mNotificationButtonDelete) {
+                    buttonString = mContext.getResources().getString(
+                            R.string.delete_action);
+
+                    Intent buttonIntentDelete = new Intent(mContext, EmailBroadcastReceiver.class);
+                    buttonIntentDelete.setAction(NOTIFICATION_BUTTON_DELETE_INTENT);
+
+                    buttonIntentDelete.putExtra(EXTRA_MESSAGE_ID, newestMessageId);
+                    PendingIntent pendingActionDelete = PendingIntent.getBroadcast(
+                            mContext, 3, buttonIntentDelete, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                    builder.addAction(R.drawable.ic_trash_holo_dark, buttonString, pendingActionDelete);
+                }
 
                 // The notification subtext will be the subject of the conversation for inbox
                 // notifications, or will based on the the label name for user label notifications.

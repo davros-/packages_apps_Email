@@ -2210,6 +2210,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             subject = "";
         }
         if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)) {
+            mController.setMessageRead(message.mId, true);
             setupAddressViews(message, account, ACTION_REPLY_ALL.equals(mAction));
             if (!subject.toLowerCase().startsWith("re:")) {
                 mSubjectView.setText("Re: " + subject);

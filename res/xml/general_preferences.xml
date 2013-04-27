@@ -53,6 +53,33 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+            android:key="category_general_notification_preferences"
+            android:title="@string/category_general_notification_preferences">
+
+        <CheckBoxPreference
+            android:key="mark_as_read"
+            android:persistent="true"
+            android:defaultValue="true"
+            android:title="@string/general_preference_notification_mark_as_read_label"
+            android:summary="@string/general_preference_notification_mark_as_read_summary" />
+
+        <CheckBoxPreference
+            android:key="reply"
+            android:persistent="true"
+            android:defaultValue="true"
+            android:title="@string/general_preference_notification_reply_label"
+            android:summary="@string/general_preference_notification_reply_summary" />
+
+        <CheckBoxPreference
+            android:key="delete"
+            android:persistent="true"
+            android:defaultValue="false"
+            android:title="@string/general_preference_notification_delete_label"
+            android:summary="@string/general_preference_notification_delete_summary" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
             android:key="category_general_security_preferences"
             android:title="@string/category_general_security_preferences">
 

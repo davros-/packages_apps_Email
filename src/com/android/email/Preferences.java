@@ -51,6 +51,13 @@ public class Preferences {
     private static final String TRUSTED_SENDERS = "trustedSenders";
     private static final String LAST_ACCOUNT_USED = "lastAccountUsed";
     private static final String REQUIRE_MANUAL_SYNC_DIALOG_SHOWN = "requireManualSyncDialogShown";
+    static final String NOTIFICATION_BUTTON_MARK = "mark_as_read";
+    static final String NOTIFICATION_BUTTON_DELETE = "delete";
+    static final String NOTIFICATION_BUTTON_REPLY = "reply";
+
+    static final boolean NOTIFICATION_BUTTON_MARK_DEFAULT = true;
+    static final boolean NOTIFICATION_BUTTON_DELETE_DEFAULT = false;
+    static final boolean NOTIFICATION_BUTTON_REPLY_DEFAULT = true;
 
     public static final int AUTO_ADVANCE_NEWER = 0;
     public static final int AUTO_ADVANCE_OLDER = 1;

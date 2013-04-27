@@ -1093,6 +1093,14 @@ as <xliff:g id="filename">%s</xliff:g>.</string>
     <string name="category_general_preferences">Application</string>
     <!-- First category in general security preferences -->
     <string name="category_general_security_preferences">Security</string>
+    <!-- Notifications in general preferences -->
+    <string name="category_general_notification_preferences">Notification buttons</string>
+    <string name="general_preference_notification_mark_as_read_label">Mark as read</string>
+    <string name="general_preference_notification_mark_as_read_summary">Show mark as read button on new email notifications</string>
+    <string name="general_preference_notification_delete_label">Delete</string>
+    <string name="general_preference_notification_delete_summary">Show delete button on new email notifications</string>
+    <string name="general_preference_notification_reply_label">Reply</string>
+    <string name="general_preference_notification_reply_summary">Show reply button on new email notifications</string>
 
     <!-- General preference: Label of the setting for the direction to move to
          when deleting the current message.

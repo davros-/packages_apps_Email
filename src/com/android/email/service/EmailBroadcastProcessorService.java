@@ -29,6 +29,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.SecurityPolicy;
@@ -64,6 +65,14 @@ public class EmailBroadcastProcessorService extends IntentService {
     private static final String ACTION_DEVICE_POLICY_ADMIN = "com.android.email.devicepolicy";
     private static final String EXTRA_DEVICE_POLICY_ADMIN = "message_code";
 
+    // Notification button intents
+    private Controller mController;
+    private static Context mContext;
+
+    private static final String ACTION_NOTIFICATION_MARK = "com.android.email.NOTIFICATION_BUTTON_MARK";
+    private static final String ACTION_NOTIFICATION_DELETE = "com.android.email.NOTIFICATION_BUTTON_DELETE";
+    private static final String MESSAGE_ID = "message_id";
+
     public EmailBroadcastProcessorService() {
         // Class name will be the thread name.
         super(EmailBroadcastProcessorService.class.getName());
@@ -76,9 +85,13 @@ public class EmailBroadcastProcessorService extends IntentService {
      * Entry point for {@link EmailBroadcastReceiver}.
      */
     public static void processBroadcastIntent(Context context, Intent broadcastIntent) {
+        long mMessageId = broadcastIntent.getLongExtra(MESSAGE_ID, -1);
+
         Intent i = new Intent(context, EmailBroadcastProcessorService.class);
         i.setAction(ACTION_BROADCAST);
         i.putExtra(Intent.EXTRA_INTENT, broadcastIntent);
+        i.putExtra(MESSAGE_ID, mMessageId);
+        mContext = context;
         context.startService(i);
     }
 
@@ -120,10 +133,25 @@ public class EmailBroadcastProcessorService extends IntentService {
                 AccountSettings.actionSettingsWithDebug(this);
             } else if (AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION.equals(broadcastAction)) {
                 onSystemAccountChanged();
+            } else if (ACTION_NOTIFICATION_MARK.equals(broadcastAction)
+                    || ACTION_NOTIFICATION_DELETE.equals(broadcastAction)) {
+                long messageId = intent.getLongExtra(MESSAGE_ID, -1);
+                if (messageId > 0) {
+                    notificationButtonActions(broadcastAction, messageId);
+                }
             }
         } else if (ACTION_DEVICE_POLICY_ADMIN.equals(action)) {
             int message = intent.getIntExtra(EXTRA_DEVICE_POLICY_ADMIN, -1);
             SecurityPolicy.onDeviceAdminReceiverMessage(this, message);
+        }
+    }
+
+    private void notificationButtonActions(String broadcastAction, long messageId) {
+        mController = Controller.getInstance(mContext);
+        if (broadcastAction.equals(ACTION_NOTIFICATION_DELETE)) {
+            mController.deleteMessage(messageId);
+        } else if (broadcastAction.equals(ACTION_NOTIFICATION_MARK)) {
+            mController.setMessageRead(messageId, true);
         }
     }
 
