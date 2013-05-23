@@ -23,7 +23,7 @@
     android:gravity="center_vertical"
     android:paddingLeft="16dip"
     android:paddingRight="16dip"
-    android:background="#000000"
+    android:background="#fff"
     >
     <Button
         android:id="@+id/move_to_newer_button"
